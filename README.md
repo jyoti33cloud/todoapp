@@ -1,10 +1,10 @@
-# 📝 To-Do App — React + Django
+#  To-Do App — React + Django
 
 A simple full-stack To-Do application with a React (Vite) frontend and Django REST API backend.
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 todo-app/
@@ -38,7 +38,7 @@ todo-app/
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Step 1 — Open in VS Code
 Double-click `todo-app.code-workspace` or run:
@@ -76,7 +76,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-✅ API is live at: **http://localhost:8000/api/todos/**
+ API is live at: **http://localhost:8000/api/todos/**
 🔧 Admin panel at: **http://localhost:8000/admin/**
 
 ---
@@ -95,11 +95,11 @@ npm install
 npm run dev
 ```
 
-✅ App is live at: **http://localhost:3000**
+ App is live at: **http://localhost:3000**
 
 ---
 
-## 🔌 API Endpoints
+##  API Endpoints
 
 | Method | URL | Description |
 |--------|-----|-------------|
@@ -119,7 +119,7 @@ npm run dev
 
 ---
 
-## ✨ Features
+##  Features
 
 - ✅ Add tasks (press Enter or click Add)
 - ✅ Mark tasks complete / incomplete
