@@ -27,3 +27,11 @@ build/
 *.egg-info/
 .DS_Store
 .vscode/settings.json
+.env
+.env.local
+.env.production
+db.sqlite3
+*.sqlite3
+*.db
+secrets.json
+config/secrets.py
