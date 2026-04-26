@@ -1,74 +1,76 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
-
-const API = "http://localhost:8000/api/todos/";
+import AuthForm from "./AuthForm";
+import { api, auth } from "./api";
 
 export default function App() {
+  const [authed, setAuthed] = useState(!!auth.getToken());
   const [todos, setTodos] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch all todos on mount
   useEffect(() => {
-    fetch(API)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch");
-        return res.json();
-      })
-      .then((data) => {
-        setTodos(data);
-        setLoading(false);
-      })
+    if (!authed) return;
+    setLoading(true);
+    api
+      .listTodos()
+      .then((data) => setTodos(data))
       .catch((err) => {
-        setError("Could not connect to backend. Is Django running?");
-        setLoading(false);
-      });
-  }, []);
+        if (/401|403/.test(err.message)) {
+          auth.clear();
+          setAuthed(false);
+        } else {
+          setError(err.message);
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [authed]);
 
-  // Add a new todo
   const addTodo = async () => {
     const title = input.trim();
     if (!title) return;
-
     try {
-      const res = await fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, completed: false }),
-      });
-      const newTodo = await res.json();
+      const newTodo = await api.createTodo(title);
       setTodos([newTodo, ...todos]);
       setInput("");
-    } catch {
-      setError("Failed to add task.");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  // Toggle completed status
   const toggleTodo = async (todo) => {
     try {
-      const res = await fetch(`${API}${todo.id}/`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completed: !todo.completed }),
+      const updated = await api.updateTodo(todo.id, {
+        completed: !todo.completed,
       });
-      const updated = await res.json();
       setTodos(todos.map((t) => (t.id === todo.id ? updated : t)));
-    } catch {
-      setError("Failed to update task.");
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  // Delete a todo
   const deleteTodo = async (id) => {
     try {
-      await fetch(`${API}${id}/`, { method: "DELETE" });
+      await api.deleteTodo(id);
       setTodos(todos.filter((t) => t.id !== id));
-    } catch {
-      setError("Failed to delete task.");
+    } catch (err) {
+      setError(err.message);
     }
   };
+
+  const logout = async () => {
+    try {
+      await api.logout();
+    } catch {
+      /* ignore — clearing locally anyway */
+    }
+    auth.clear();
+    setTodos([]);
+    setAuthed(false);
+  };
+
+  if (!authed) return <AuthForm onAuth={() => setAuthed(true)} />;
 
   const completedCount = todos.filter((t) => t.completed).length;
 
@@ -77,9 +79,27 @@ export default function App() {
       <div className="card">
         <header>
           <h1>My Tasks</h1>
-          <span className="badge">
-            {completedCount}/{todos.length} done
-          </span>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span className="badge">
+              {completedCount}/{todos.length} done
+            </span>
+            <span className="badge">{auth.getUsername()}</span>
+            <button
+              onClick={logout}
+              style={{
+                background: "none",
+                border: "1px solid #2e2e2e",
+                color: "#aaa",
+                borderRadius: 999,
+                padding: "4px 10px",
+                fontSize: "0.7rem",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              logout
+            </button>
+          </div>
         </header>
 
         {error && (

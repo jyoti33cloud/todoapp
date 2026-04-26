@@ -1,0 +1,174 @@
+{
+  "info": {
+    "name": "Todo App API",
+    "description": "Token-authenticated CRUD endpoints for the Django REST Framework backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api" },
+    { "key": "token", "value": "" },
+    { "key": "todo_id", "value": "" }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "Authorization" },
+      { "key": "value", "value": "Token {{token}}" },
+      { "key": "in", "value": "header" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register/", "host": ["{{base_url}}"], "path": ["auth", "register", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demopass123\",\n  \"email\": \"demo@example.com\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.token) pm.collectionVariables.set('token', data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login/", "host": ["{{base_url}}"], "path": ["auth", "login", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"demopass123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.token) pm.collectionVariables.set('token', data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{base_url}}/auth/logout/", "host": ["{{base_url}}"], "path": ["auth", "logout", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Todos",
+      "item": [
+        {
+          "name": "List todos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/todos/", "host": ["{{base_url}}"], "path": ["todos", ""] }
+          }
+        },
+        {
+          "name": "Create todo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/todos/", "host": ["{{base_url}}"], "path": ["todos", ""] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Buy groceries\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.id) pm.collectionVariables.set('todo_id', data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Retrieve todo",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/todos/{{todo_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["todos", "{{todo_id}}", ""]
+            }
+          }
+        },
+        {
+          "name": "Toggle complete (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/todos/{{todo_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["todos", "{{todo_id}}", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Update todo (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/todos/{{todo_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["todos", "{{todo_id}}", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Buy groceries and cook dinner\",\n  \"completed\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete todo",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/todos/{{todo_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["todos", "{{todo_id}}", ""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
